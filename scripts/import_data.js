@@ -1,17 +1,24 @@
-const fs = require('fs');
+const fs = require('fs').promises;
 const path = require('path');
 
-const filePath = path.join(__dirname, 'sat_realtime_telemetry.csv'); // Update the file path
+async function readCSVFileAndExportArray() {
+    const filePath = path.join(__dirname, 'sat_realtime_telemetry.csv'); // Update the file path
 
-fs.readFile(filePath, 'utf8', (err, data) => {
-    if (err) {
+    try {
+        const data = await fs.readFile(filePath, 'utf8');
+        const lines = data.trim().split('\n'); // Trim leading/trailing whitespace and split lines
+        const dataArray = [];
+
+        for (let i = 0; i < lines.length; i++) {
+            const columns = lines[i].split(',');
+            dataArray.push(columns);
+        }
+
+        return dataArray;
+    } catch (err) {
         console.error('Error reading CSV file:', err);
-        return;
+        throw err;
     }
+}
 
-    const lines = data.split('\n');
-    lines.forEach((line, lineNumber) => {
-        const columns = line.split(',');
-        console.log(`Line ${lineNumber + 1}:`, columns);
-    });
-});
+module.exports = readCSVFileAndExportArray;
